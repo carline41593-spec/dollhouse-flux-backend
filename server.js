@@ -3,14 +3,12 @@ import cors from "cors";
 import fetch from "node-fetch";
 
 const app = express();
+
 app.use(cors());
-app.use(express.json()); // IMPORTANT — fixes all JSON parse issues
+app.use(express.json());
 
 const FIREWORKS_KEY = process.env.FIREWORKS_KEY;
 
-// ------------------------------
-// 🚀 POST /generate
-// ------------------------------
 app.post("/generate", async (req, res) => {
   try {
     const userPrompt = req.body.prompt;
@@ -33,7 +31,7 @@ app.post("/generate", async (req, res) => {
           width: 1024,
           height: 1024,
           steps: 30,
-          output_format: "jpeg",
+          output_format: "jpeg"
         }),
       }
     );
@@ -43,24 +41,19 @@ app.post("/generate", async (req, res) => {
     if (!data || !data.images || !data.images[0]) {
       return res.status(500).json({
         error: "Invalid response from Fireworks",
-        data,
+        data: data
       });
     }
 
     return res.json({
-      image_url: data.images[0].url,
+      image_url: data.images[0].url
     });
-  } catch (error) {
-    return res.status(500).json({
-      error: error.message,
-    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 });
 
-// ------------------------------
-// 🚀 START SERVER (Render needs this)
-// ------------------------------
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Flux backend running on port ${PORT}`);
 });
