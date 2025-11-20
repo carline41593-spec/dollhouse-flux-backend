@@ -78,35 +78,3 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`🔥 Flux backend running on port ${PORT}`);
 });
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${FIREWORKS_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "flux-pro-1.1",
-          prompt,
-          width: 1024,
-          height: 1024,
-          steps: 30,
-          output_format: "jpeg"
-        }),
-      }
-    );
-
-    const data = await response.json();
-    console.log("FIREWORKS RESPONSE:", data);
-
-    if (!data?.images?.[0]?.url) {
-      return res.status(500).json({ error: "Invalid Fireworks response", data });
-    }
-
-    res.json({ image_url: data.images[0].url });
-  } catch (err) {
-    console.log("SERVER ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Backend listening on port", PORT));
