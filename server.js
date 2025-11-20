@@ -17,7 +17,7 @@ app.post("/generate", async (req, res) => {
       return res.status(400).json({ error: "Missing prompt" });
     }
 
-    const response = await fetch("https://api.fireworks.ai/inference/v1/image/generate", {
+    const response = await fetch("https://api.fireworks.ai/inference/v1/images/generations", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${FIREWORKS_KEY}`,
