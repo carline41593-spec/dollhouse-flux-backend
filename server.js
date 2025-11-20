@@ -4,27 +4,32 @@ import fetch from "node-fetch";
 
 const app = express();
 
-// Middleware
+// DEBUG — log raw body
+app.use(express.text());
+app.use((req, res, next) => {
+  console.log("RAW BODY:", req.body);
+  next();
+});
+
+// Then parse JSON correctly
+app.use(express.json());
 app.use(cors());
-app.use(express.json({ strict: true })); // STRICT JSON PARSING
 
 const FIREWORKS_KEY = process.env.FIREWORKS_KEY;
 
-// Test route
 app.get("/", (req, res) => {
-  res.send("Backend is running!");
+  res.send("Backend running");
 });
 
-// Generate route
 app.post("/generate", async (req, res) => {
   try {
-    console.log("RAW BODY RECEIVED:", req.body); // DEBUG LINE
+    console.log("PARSED BODY:", req.body);
 
-    const userPrompt = req.body.prompt;
-
-    if (!userPrompt) {
+    if (!req.body || !req.body.prompt) {
       return res.status(400).json({ error: "Missing prompt" });
     }
+
+    const prompt = req.body.prompt;
 
     const response = await fetch(
       "https://api.fireworks.ai/inference/v1/images/generations",
@@ -36,11 +41,11 @@ app.post("/generate", async (req, res) => {
         },
         body: JSON.stringify({
           model: "flux-pro-1.1",
-          prompt: userPrompt,
+          prompt,
           width: 1024,
           height: 1024,
           steps: 30,
-          output_format: "jpeg",
+          output_format: "jpeg"
         }),
       }
     );
@@ -49,21 +54,15 @@ app.post("/generate", async (req, res) => {
     console.log("FIREWORKS RESPONSE:", data);
 
     if (!data?.images?.[0]?.url) {
-      return res.status(500).json({
-        error: "Invalid response from Fireworks",
-        data,
-      });
+      return res.status(500).json({ error: "Invalid Fireworks response", data });
     }
 
     res.json({ image_url: data.images[0].url });
   } catch (err) {
-    console.error("SERVER ERROR:", err);
+    console.log("SERVER ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Server start
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("Flux backend running on port", PORT);
-});
+app.listen(PORT, () => console.log("Backend listening on port", PORT));
